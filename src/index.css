@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 7%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 7%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 7%;
+
+    --primary: 0 0% 15%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 30 5% 93%;
+    --secondary-foreground: 0 0% 15%;
+
+    --muted: 30 5% 95%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 35 20% 50%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 30 5% 95%;
+    --ring: 0 0% 15%;
+
+    --radius: 0.75rem;
+
+    --shadow-card: 0 0 0 1px rgba(0,0,0,.04), 0 2px 4px rgba(0,0,0,.02), 0 8px 16px -4px rgba(0,0,0,.04);
+    --shadow-hover: 0 0 0 1px rgba(0,0,0,.04), 0 4px 8px rgba(0,0,0,.04), 0 12px 24px -4px rgba(0,0,0,.06);
+
+    --font-serif: 'Instrument Serif', serif;
+    --font-sans: 'Instrument Sans', sans-serif;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+    letter-spacing: -0.02em;
+  }
+}
