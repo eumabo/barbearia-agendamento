@@ -37,7 +37,7 @@ const ConfirmationForm = ({
       onConfirm(name, phone);
     }
 
-    const whatsappNumber = "5527996316204";
+    const whatsappNumber = "5527999769394";
 
     const formattedDate = selectedDate
       ? selectedDate.toLocaleDateString("pt-BR")
@@ -55,7 +55,7 @@ const ConfirmationForm = ({
 
 Obrigado!`;
 
-    const url =`https://wa.me/${27996316204}?text=${encodeURIComponent(message)}`;
+    const url =`https://wa.me/${27999769394}?text=${encodeURIComponent(message)}`;
 
     window.open(url, "_blank");
   };
