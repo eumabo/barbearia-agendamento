@@ -8,47 +8,28 @@ interface HeroSectionProps {
 const HeroSection = ({ onBook }: HeroSectionProps) => {
   return (
     <> 
-    <section className="max-w-6xl mx-auto px-6 py-[15vh] min-h-[70vh] grid lg:grid-cols-2 items-center gap-12">
+    <section className="min-h-screen flex flex-col items-center justify-center text-center px-6">
 
-       <div>
+  {/* Logo */}
+  <img 
+    src="/logo.png" 
+    alt="Barbearia Du Marcin"
+    className="w-40 mb-8"
+  />
 
-    <motion.h1
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className="text-5xl md:text-7xl lg:text-8xl font-serif text-balance leading-[0.9] mb-8 text-foreground -ml-12"
-    >
+  {/* Texto */}
+  <div className="max-w-xl">
+    <h1 className="text-5xl font-serif mb-6">
       Precisão em <br /> cada movimento.
-    </motion.h1>
+    </h1>
 
-    <motion.p
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-      className="text-muted-foreground text-lg md:text-xl max-w-md mb-10 font-sans -mt-4"
-    >
+    <p className="text-gray-500 mb-8">
       A arte da navalha, no seu tempo. Agende seu horário com praticidade.
-    </motion.p>
+    </p>
 
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="-ml-10"
-    >
-      <Button variant="hero" size="xl" onClick={onBook}>
-        Agendar agora
-      </Button>
-    </motion.div>
-
-  </div>
-
-  <div className="hidden lg:flex items-center justify-center">
-    <img
-      src="/logo.png"
-      alt="Logo da barbearia"
-      className="w-[320px] h-auto object-contain -mt-24"
-    />
+    <button className="bg-black text-white px-8 py-4 rounded-full">
+      Agendar agora
+    </button>
   </div>
 
 </section>
