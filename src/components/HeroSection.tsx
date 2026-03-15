@@ -26,10 +26,13 @@ const HeroSection = ({ onBook }: HeroSectionProps) => {
     <p className="text-gray-500 mb-8">
       A arte da navalha, no seu tempo. Agende seu horário com praticidade.
     </p>
+<button
+  onClick={onBook}
+  className="bg-black text-white px-8 py-4 rounded-full"
+>
+  Agendar agora
+</button>
 
-    <button className="bg-black text-white px-8 py-4 rounded-full">
-      Agendar agora
-    </button>
   </div>
 
 </section>
