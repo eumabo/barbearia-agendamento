@@ -10,10 +10,8 @@ import DateTimeSelection from "@/components/DateTimeSelection";
 import ConfirmationForm from "@/components/ConfirmationForm";
 import SuccessScreen from "@/components/SuccessScreen";
 import { Button } from "@/components/ui/button";
-
-
-import logo from "@logo.png";
-
+import { useToast } from "@/hooks/use-toast";
+import { createAppointment, dateToDb } from "@/lib/booking";
 
 type Step = "hero" | "service" | "barber" | "datetime" | "confirm" | "success";
 
@@ -26,11 +24,13 @@ const slideVariants = {
 };
 
 const Index = () => {
+  const { toast } = useToast();
   const [step, setStep] = useState<Step>("hero");
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const goBack = useCallback(() => {
     const idx = stepOrder.indexOf(step);
@@ -44,19 +44,60 @@ const Index = () => {
     setSelectedBarber(null);
     setSelectedDate(null);
     setSelectedTime(null);
+    setIsSubmitting(false);
   }, []);
 
-  const handleConfirm = useCallback((_name: string, _phone: string) => {
-    // In a real app, send to backend
-    setTimeout(() => setStep("success"), 600);
-  }, []);
+  const handleConfirm = useCallback(
+    async (name: string, phone: string) => {
+      if (isSubmitting) return;
+
+      if (!selectedService || !selectedBarber || !selectedDate || !selectedTime) {
+        toast({
+          title: "Dados incompletos",
+          description: "Selecione serviço, barbeiro, data e horário antes de confirmar.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      try {
+      await createAppointment({
+  barber_id: selectedBarber.id,
+  barber_name: selectedBarber.name,
+  date: dateToDb(selectedDate),
+  time: selectedTime,
+  customer_name: name,
+  customer_phone: phone,
+  service_name: selectedService.nome,
+  notes: null,
+});
+
+        setStep("success");
+      } catch (error: any) {
+        toast({
+          title: "Não foi possível agendar",
+          description: error?.message || "Tente novamente em alguns segundos.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [isSubmitting, selectedService, selectedBarber, selectedDate, selectedTime, toast]
+  );
 
   const canProceed = () => {
     switch (step) {
-      case "service": return !!selectedService;
-      case "barber": return !!selectedBarber;
-      case "datetime": return !!selectedDate && !!selectedTime;
-      default: return false;
+      case "service":
+        return !!selectedService;
+      case "barber":
+        return !!selectedBarber;
+      case "datetime":
+        return !!selectedDate && !!selectedTime;
+      default:
+        return false;
     }
   };
 
@@ -81,18 +122,18 @@ const Index = () => {
 
   return (
     <div className="max-w-lg mx-auto px-6 py-10 min-h-screen flex flex-col">
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <Button variant="ghost" size="icon" onClick={goBack}>
           <ArrowLeft className="w-4 h-4" />
         </Button>
+
         <span className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans">
-          Corte & Ofício
+          Corte &amp; Ofício
         </span>
+
         <div className="w-10" />
       </div>
 
-      {/* Step content */}
       <div className="flex-1">
         <AnimatePresence mode="wait">
           <motion.div
@@ -104,67 +145,80 @@ const Index = () => {
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
             {step === "service" && (
-              <ServiceSelection selected={selectedService} onSelect={(s) => { setSelectedService(s); }} />
+              <ServiceSelection
+                selected={selectedService}
+                onSelect={(s) => {
+                  setSelectedService(s);
+                }}
+              />
             )}
+
             {step === "barber" && (
-              <BarberSelection selected={selectedBarber} onSelect={(b) => { setSelectedBarber(b); }} />
+              <BarberSelection
+                selected={selectedBarber}
+                onSelect={(b) => {
+                  setSelectedBarber(b);
+                }}
+              />
             )}
+
             {step === "datetime" && (
               <DateTimeSelection
+                barberId={selectedBarber?.id}
                 selectedDate={selectedDate}
                 selectedTime={selectedTime}
                 onSelectDate={setSelectedDate}
                 onSelectTime={setSelectedTime}
               />
             )}
-            {step === "confirm" && (
-              <div className="space-y-6">
-                {/* Summary */}
-                <div className="p-5 rounded-xl bg-card shadow-card space-y-3">
-                  <span className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans block">
-                    Resumo
-                  </span>
 
-                <div className="w-[400px] h-[200px] flex items-center justify-center">
-                  <img
-                    src="/logo.png"
-                     alt="Barbearia Du Marcin"
-                       className="w-full h-full object-contain"
-                       />
-                     </div>
-
-
-                  <div className="flex justify-between text-sm font-sans">
-                    <span className="text-muted-foreground">Serviço</span>
-                    <span className="text-foreground font-medium">{selectedService?.nome} · R$ {selectedService?.preco}</span>
-                  </div>
-                  <div className="flex justify-between text-sm font-sans">
-                    <span className="text-muted-foreground">Profissional</span>
-                    <span className="text-foreground font-medium">{selectedBarber?.name}</span>
-                  </div>
-                  <div className="flex justify-between text-sm font-sans">
-                    <span className="text-muted-foreground">Data</span>
-                    <span className="text-foreground font-medium capitalize">
-                      {selectedDate && format(selectedDate, "d 'de' MMMM", { locale: ptBR })} · {selectedTime}
+            {step === "confirm" &&
+              selectedService &&
+              selectedBarber &&
+              selectedDate &&
+              selectedTime && (
+                <div className="space-y-6">
+                  <div className="p-5 rounded-xl bg-card shadow-card space-y-3">
+                    <span className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans block">
+                      Resumo
                     </span>
-                  </div>
-                </div>
-                <ConfirmationForm
-               onConfirm={handleConfirm}
-               isSubmitting={false}
-               selectedService={selectedService}
-               selectedBarber={selectedBarber}
-               selectedDate={selectedDate}
-               selectedTime={selectedTime}
-              />
 
-              </div>
-            )}
+                    <div className="flex justify-between text-sm font-sans gap-4">
+                      <span className="text-muted-foreground">Serviço</span>
+                      <span className="text-foreground font-medium text-right">
+                        {selectedService.nome} · R$ {selectedService.preco}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-sm font-sans gap-4">
+                      <span className="text-muted-foreground">Profissional</span>
+                      <span className="text-foreground font-medium text-right">
+                        {selectedBarber.name}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-sm font-sans gap-4">
+                      <span className="text-muted-foreground">Data</span>
+                      <span className="text-foreground font-medium capitalize text-right">
+                        {format(selectedDate, "d 'de' MMMM", { locale: ptBR })} · {selectedTime}
+                      </span>
+                    </div>
+                  </div>
+
+                  <ConfirmationForm
+                    onConfirm={handleConfirm}
+                    isSubmitting={isSubmitting}
+                    selectedService={selectedService}
+                    selectedBarber={selectedBarber}
+                    selectedDate={selectedDate}
+                    selectedTime={selectedTime}
+                  />
+                </div>
+              )}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Bottom bar (sticky on mobile) */}
       {step !== "confirm" && (
         <div className="sticky bottom-0 pt-4 pb-6 bg-background/80 backdrop-blur-md mt-6">
           <Button

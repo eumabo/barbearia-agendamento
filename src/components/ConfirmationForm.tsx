@@ -2,16 +2,18 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { createBooking } from "@/lib/booking";
 
 interface ConfirmationFormProps {
-  onConfirm?: (name: string, phone: string) => void;
+  onConfirm?: (name: string, phone: string) => Promise<void> | void;
   isSubmitting: boolean;
   selectedService: {
     nome: string;
     preco?: number;
   };
   selectedBarber: {
-    name: string;
+  id: string;
+  name: string;
   };
   selectedDate: Date | null;
   selectedTime: string;
@@ -28,22 +30,30 @@ const ConfirmationForm = ({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim() || !phone.trim()) return;
 
-    if (onConfirm) {
-      onConfirm(name, phone);
-    }
+    try {
+     await createBooking({
+  barber_id: selectedBarber.id,
+  barber_name: selectedBarber.name,
+  date: selectedDate?.toISOString().split("T")[0] || "",
+  time: selectedTime,
+  customer_name: name.trim(),
+  customer_phone: phone.trim(),
+  service_name: selectedService?.nome ?? "Não informado",
+});
+      if (onConfirm) {
+        await onConfirm(name.trim(), phone.trim());
+      }
 
-    const whatsappNumber = "5527999769394";
+      const formattedDate = selectedDate
+        ? selectedDate.toLocaleDateString("pt-BR")
+        : "Data não informada";
 
-    const formattedDate = selectedDate
-      ? selectedDate.toLocaleDateString("pt-BR")
-      : "Data não informada";
-
-    const message = `Olá! Gostaria de confirmar meu agendamento na barbearia do Marcin.
+      const message = `Olá! Gostaria de confirmar meu agendamento na barbearia do Marcin.
 
 👤 Nome: ${name}
 📱 WhatsApp: ${phone}
@@ -55,9 +65,11 @@ const ConfirmationForm = ({
 
 Obrigado!`;
 
-    const url =`https://wa.me/${27999769394}?text=${encodeURIComponent(message)}`;
-
-    window.open(url, "_blank");
+      const url = `https://wa.me/5527999769394?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
+    } catch (err: any) {
+      alert(err.message || "Esse horário já foi reservado!");
+    }
   };
 
   return (
