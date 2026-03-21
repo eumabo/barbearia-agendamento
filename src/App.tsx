@@ -4,8 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index";
-import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import Admin from "@/pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -24,5 +24,8 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
+
+<Route path="/admin" element={<Admin />} />
+
 
 export default App;
