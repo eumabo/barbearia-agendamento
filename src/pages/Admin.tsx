@@ -19,7 +19,7 @@ import {
   signInAdmin,
   signOutAdmin,
   type AppointmentRow,
-} from "@/lib/Booking";
+} from "@/lib/booking";
 
 const Admin = () => {
   const { toast } = useToast();
